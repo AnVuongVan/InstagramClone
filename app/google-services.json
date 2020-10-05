@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "256022587759",
+    "firebase_url": "https://instagram-clone-ddfee.firebaseio.com",
+    "project_id": "instagram-clone-ddfee",
+    "storage_bucket": "instagram-clone-ddfee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256022587759:android:7bcf48b34bb7e81eb6a09a",
+        "android_client_info": {
+          "package_name": "com.vietis.atifsoftwares"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256022587759-bgrs8npndumnd5jse741buc2lugoci4r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRZ3gYI2f6i_2Zszb38cf4pgth2Ci6wcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256022587759-bgrs8npndumnd5jse741buc2lugoci4r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
