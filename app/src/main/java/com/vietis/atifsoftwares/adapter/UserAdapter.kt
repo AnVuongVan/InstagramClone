@@ -123,7 +123,7 @@ class UserAdapter(private var mContext: Context,
         return mUser.size
     }
 
-    class UserHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class UserHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
         val userNameTv: TextView = itemView.findViewById(R.id.user_name)
         val fullNameTv: TextView = itemView.findViewById(R.id.full_name)
         val profileImage: CircleImageView = itemView.findViewById(R.id.user_profile_image)

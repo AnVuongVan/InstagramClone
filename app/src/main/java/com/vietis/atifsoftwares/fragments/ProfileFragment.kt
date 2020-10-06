@@ -8,6 +8,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -17,12 +20,20 @@ import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import com.vietis.atifsoftwares.AccountSettingsActivity
 import com.vietis.atifsoftwares.R
+import com.vietis.atifsoftwares.adapter.MyImages
+import com.vietis.atifsoftwares.model.Post
 import com.vietis.atifsoftwares.model.User
+import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_profile.view.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ProfileFragment : Fragment() {
     private lateinit var profileId: String
     private lateinit var firebaseUser: FirebaseUser
+
+    private var postList: List<Post>? = null
+    private var myImages: MyImages? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -40,6 +51,16 @@ class ProfileFragment : Fragment() {
         } else {
             checkFollowAndFollowing()
         }
+
+        val uploadPictureRv: RecyclerView
+        uploadPictureRv = view.findViewById(R.id.recycler_view_picture)
+        uploadPictureRv.setHasFixedSize(true)
+        val linearLayoutManager: LinearLayoutManager = GridLayoutManager(context, 3)
+        uploadPictureRv.layoutManager = linearLayoutManager
+
+        postList = ArrayList()
+        myImages = context?.let { MyImages(it, postList as ArrayList<Post>) }
+        uploadPictureRv.adapter = myImages
 
         view.edit_account_settings_btn.setOnClickListener {
             when (view.edit_account_settings_btn.text.toString()) {
@@ -73,9 +94,34 @@ class ProfileFragment : Fragment() {
 
         getFollowers()
         getFollowing()
+        getNumberOfPosts()
+
         userInfo()
+        myPhoto()
 
         return view
+    }
+
+    private fun myPhoto() {
+        val postsRef = FirebaseDatabase.getInstance().getReference("Posts")
+        postsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    (postList as ArrayList<Post>).clear()
+                    for (dataSnapshot in snapshot.children) {
+                        val post = dataSnapshot.getValue(Post::class.java)
+                        if (post!!.getPublisher() == profileId) {
+                            (postList as ArrayList<Post>).add(post)
+                        }
+                        Collections.reverse(postList)
+                        myImages!!.notifyDataSetChanged()
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
     }
 
     private fun checkFollowAndFollowing() {
@@ -96,6 +142,27 @@ class ProfileFragment : Fragment() {
 
             override fun onCancelled(error: DatabaseError) {
 
+            }
+        })
+    }
+
+    private fun getNumberOfPosts() {
+        val postsRef = FirebaseDatabase.getInstance().getReference("Posts")
+        postsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    var count = 0
+                    for (dataSnapshot in snapshot.children) {
+                        val post = dataSnapshot.getValue(Post::class.java)
+                        if (post!!.getPublisher() == profileId) {
+                            count++
+                        }
+                    }
+                    total_posts.text = count.toString()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
             }
         })
     }

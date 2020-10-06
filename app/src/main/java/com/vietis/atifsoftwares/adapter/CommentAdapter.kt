@@ -64,7 +64,7 @@ class CommentAdapter(private val mContext: Context,
         return mComment.size
     }
 
-    class CommentHolder(@NonNull itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class CommentHolder(@NonNull itemView: View): RecyclerView.ViewHolder(itemView) {
         val imageProfile: CircleImageView = itemView.findViewById(R.id.profile_image)
         val userNameTv: TextView = itemView.findViewById(R.id.user_name)
         val commentTv: TextView = itemView.findViewById(R.id.text_comment)

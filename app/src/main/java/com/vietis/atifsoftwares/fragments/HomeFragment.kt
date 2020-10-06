@@ -51,7 +51,6 @@ class HomeFragment : Fragment() {
         followingRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    //(followingList as ArrayList<*>).clear()
                     followingList?.clear()
                     for (dataSnapshot in snapshot.children) {
                         dataSnapshot.key?.let { (followingList as ArrayList<String>).add(it) }

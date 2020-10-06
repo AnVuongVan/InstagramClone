@@ -51,7 +51,8 @@ class PostAdapter(private val mContext: Context,
         isLikes(post.getPostId(), holder.likesBtn)
         numberOfLikes(holder.likes, post.getPostId())
         numberOfComments(holder.comments, post.getPostId())
-        
+        checkSavedStatus(post.getPostId(), holder.saveBtn)
+
         holder.likesBtn.setOnClickListener {
             if (holder.likesBtn.tag == "Like") {
                 FirebaseDatabase.getInstance().getReference("Likes")
@@ -59,9 +60,6 @@ class PostAdapter(private val mContext: Context,
             } else {
                 FirebaseDatabase.getInstance().getReference("Likes")
                     .child(post.getPostId()).child(firebaseUser!!.uid).removeValue()
-
-                val intent = Intent(mContext, MainActivity::class.java)
-                mContext.startActivity(intent)
             }
         }
 
@@ -79,6 +77,34 @@ class PostAdapter(private val mContext: Context,
             mContext.startActivity(intent)
         }
 
+        holder.saveBtn.setOnClickListener {
+            if (holder.saveBtn.tag == "Save") {
+                FirebaseDatabase.getInstance().getReference("Saves")
+                    .child(firebaseUser!!.uid).child(post.getPostId()).setValue(true)
+            } else {
+                FirebaseDatabase.getInstance().getReference("Saves")
+                    .child(firebaseUser!!.uid).child(post.getPostId()).removeValue()
+            }
+        }
+    }
+
+    private fun checkSavedStatus(postId: String, imageView: ImageView) {
+        val savesRef = FirebaseDatabase.getInstance().getReference("Saves")
+            .child(firebaseUser!!.uid)
+        savesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.child(postId).exists()) {
+                    imageView.setImageResource(R.drawable.save_large_icon)
+                    imageView.tag = "Saved"
+                } else {
+                    imageView.setImageResource(R.drawable.save_unfilled_large_icon)
+                    imageView.tag = "Save"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
     }
 
     private fun numberOfLikes(likes: TextView, postId: String) {
@@ -151,7 +177,7 @@ class PostAdapter(private val mContext: Context,
         return mPost.size
     }
 
-    class PostHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class PostHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
         val profileImage: CircleImageView = itemView.findViewById(R.id.user_profile_image)
         val postImage: ImageView = itemView.findViewById(R.id.post_image_home)
         val likesBtn: ImageView = itemView.findViewById(R.id.post_image_like_btn)
