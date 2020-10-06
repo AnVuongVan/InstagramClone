@@ -53,7 +53,11 @@ class AccountSettingsActivity : AppCompatActivity() {
                 .start(this)
         }
 
-        save_profile_btn.setOnClickListener {
+        close_btn.setOnClickListener {
+            onBackPressed()
+        }
+
+        save_btn.setOnClickListener {
             if (checker == "clicked") {
                 uploadImage()
             } else {

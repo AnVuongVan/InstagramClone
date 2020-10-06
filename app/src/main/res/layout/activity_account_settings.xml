@@ -27,14 +27,14 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/close_profile_btn"
+                    android:id="@+id/close_btn"
                     android:layout_alignParentStart="true"
                     android:src="@drawable/close"
                     android:layout_width="20dp"
                     android:layout_height="30dp" />
 
                 <ImageView
-                    android:id="@+id/save_profile_btn"
+                    android:id="@+id/save_btn"
                     android:layout_alignParentEnd="true"
                     android:src="@drawable/save_edited_info"
                     android:layout_marginEnd="15dp"

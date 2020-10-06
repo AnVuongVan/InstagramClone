@@ -32,7 +32,11 @@ class AddPostActivity : AppCompatActivity() {
         CropImage.activity().setAspectRatio(2, 1)
             .start(this)
 
-        save_post_btn.setOnClickListener {
+        close_btn.setOnClickListener {
+            onBackPressed()
+        }
+
+        save_btn.setOnClickListener {
             uploadImage()
         }
     }
