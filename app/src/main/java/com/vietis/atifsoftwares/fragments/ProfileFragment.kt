@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,7 +36,11 @@ class ProfileFragment : Fragment() {
     private var postList: List<Post>? = null
     private var myImages: MyImages? = null
 
-    @SuppressLint("SetTextI18n")
+    private var postSaved: List<Post>? = null
+    private var mySavedImgAdapter: MyImages? = null
+    private var mySavedImages: List<String>? = null
+
+    @SuppressLint("SetTextI18n", "ResourceAsColor")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
@@ -61,6 +66,31 @@ class ProfileFragment : Fragment() {
         postList = ArrayList()
         myImages = context?.let { MyImages(it, postList as ArrayList<Post>) }
         uploadPictureRv.adapter = myImages
+
+        val savedPictureRv: RecyclerView
+        savedPictureRv = view.findViewById(R.id.recycler_view_saved)
+        savedPictureRv.setHasFixedSize(true)
+        val linearLayout: LinearLayoutManager = GridLayoutManager(context, 3)
+        savedPictureRv.layoutManager = linearLayout
+
+        postSaved = ArrayList()
+        mySavedImgAdapter = context?.let { MyImages(it, postSaved as ArrayList<Post>) }
+        savedPictureRv.adapter = mySavedImgAdapter
+
+        val uploadImgBtn: ImageButton
+        uploadImgBtn = view.findViewById(R.id.images_grid_view_btn)
+        val savedImgBtn: ImageButton
+        savedImgBtn = view.findViewById(R.id.images_save_btn)
+
+        uploadImgBtn.setOnClickListener {
+            savedPictureRv.visibility = View.GONE
+            uploadPictureRv.visibility = View.VISIBLE
+        }
+
+        savedImgBtn.setOnClickListener {
+            savedPictureRv.visibility = View.VISIBLE
+            uploadPictureRv.visibility = View.GONE
+        }
 
         view.edit_account_settings_btn.setOnClickListener {
             when (view.edit_account_settings_btn.text.toString()) {
@@ -98,8 +128,50 @@ class ProfileFragment : Fragment() {
 
         userInfo()
         myPhoto()
+        mySaves()
 
         return view
+    }
+
+    private fun mySaves() {
+        mySavedImages = ArrayList()
+        val savesRef = FirebaseDatabase.getInstance().getReference("Saves").child(firebaseUser.uid)
+        savesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    for (dataSnapshot in snapshot.children) {
+                        (mySavedImages as ArrayList<String>).add(dataSnapshot.key!!)
+                    }
+                    readSavedImages()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    private fun readSavedImages() {
+        val postsRef = FirebaseDatabase.getInstance().getReference("Posts")
+        postsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                (postSaved as ArrayList<Post>).clear()
+                if (snapshot.exists()) {
+                    for (dataSnapshot in snapshot.children) {
+                        val post = dataSnapshot.getValue(Post::class.java)
+                        for (key in mySavedImages!!) {
+                            if (post!!.getPostId() == key) {
+                                (postSaved as ArrayList<Post>).add(post)
+                            }
+                        }
+                    }
+                    mySavedImgAdapter!!.notifyDataSetChanged()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
     }
 
     private fun myPhoto() {
