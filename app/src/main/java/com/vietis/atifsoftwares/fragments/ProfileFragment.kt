@@ -21,12 +21,12 @@ import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import com.vietis.atifsoftwares.AccountSettingsActivity
 import com.vietis.atifsoftwares.R
+import com.vietis.atifsoftwares.ShowUsersActivity
 import com.vietis.atifsoftwares.adapter.MyImages
 import com.vietis.atifsoftwares.model.Post
 import com.vietis.atifsoftwares.model.User
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_profile.view.*
-import java.util.*
 import kotlin.collections.ArrayList
 
 class ProfileFragment : Fragment() {
@@ -90,6 +90,20 @@ class ProfileFragment : Fragment() {
         savedImgBtn.setOnClickListener {
             savedPictureRv.visibility = View.VISIBLE
             uploadPictureRv.visibility = View.GONE
+        }
+
+        view.total_followers.setOnClickListener {
+            val intent = Intent(context, ShowUsersActivity::class.java)
+            intent.putExtra("id", profileId)
+            intent.putExtra("title", "Followers")
+            startActivity(intent)
+        }
+
+        view.total_following.setOnClickListener {
+            val intent = Intent(context, ShowUsersActivity::class.java)
+            intent.putExtra("id", profileId)
+            intent.putExtra("title", "Following")
+            startActivity(intent)
         }
 
         view.edit_account_settings_btn.setOnClickListener {
@@ -185,7 +199,8 @@ class ProfileFragment : Fragment() {
                         if (post!!.getPublisher() == profileId) {
                             (postList as ArrayList<Post>).add(post)
                         }
-                        Collections.reverse(postList)
+                        //Collections.reverse(postList)
+                        (postList as MutableList<Post>).reverse()
                         myImages!!.notifyDataSetChanged()
                     }
                 }

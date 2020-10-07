@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     android:background="@drawable/button_black_background"
     android:layout_marginTop="10dp"
-    android:layout_marginStart="100dp"
-    android:layout_marginEnd="100dp">
+    android:layout_marginStart="85dp"
+    android:layout_marginEnd="85dp">
 
     <RelativeLayout
         android:layout_centerHorizontal="true"

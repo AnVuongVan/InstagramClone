@@ -2,7 +2,6 @@ package com.vietis.atifsoftwares.fragments
 
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextUtils
 import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,6 +14,8 @@ import com.vietis.atifsoftwares.R
 import com.vietis.atifsoftwares.adapter.UserAdapter
 import com.vietis.atifsoftwares.model.User
 import kotlinx.android.synthetic.main.fragment_search.view.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class SearchFragment : Fragment() {
     private var recyclerView: RecyclerView? = null
@@ -40,31 +41,26 @@ class SearchFragment : Fragment() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (TextUtils.isEmpty(view.searchEt.text.toString())) {
-                    retrieveUser()
-                } else {
-                    retrieveUser()
-                    searchUser(s.toString())
-                }
+
             }
 
             override fun afterTextChanged(p0: Editable?) {
-
+                searchUser(p0.toString())
             }
         })
         return view
     }
 
     private fun searchUser(input: String) {
-        val query = FirebaseDatabase.getInstance().getReference("Users")
-            .orderByChild("fullName").startAt(input).endAt(input + "\uf8ff")
-        query.addValueEventListener(object: ValueEventListener {
+        val usersRef = FirebaseDatabase.getInstance().getReference("Users")
+        usersRef.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                mUser?.clear()
+                mUser!!.clear()
                 for (snapshot in dataSnapshot.children) {
                     val user = snapshot.getValue(User::class.java)
-                    if (user != null) {
-                        mUser?.add(user)
+                    if (user!!.getFullName().toLowerCase(Locale.ROOT).contains(input.toLowerCase(Locale.ROOT))
+                        || user.getUserName().toLowerCase(Locale.ROOT).contains(input.toLowerCase(Locale.ROOT))) {
+                        mUser!!.add(user)
                     }
                 }
                 userAdapter?.notifyDataSetChanged()
@@ -77,7 +73,7 @@ class SearchFragment : Fragment() {
 
     }
 
-    private fun retrieveUser() {
+    /*private fun retrieveUser() {
         val usersRef = FirebaseDatabase.getInstance().getReference("Users")
         usersRef.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -95,6 +91,6 @@ class SearchFragment : Fragment() {
 
             }
         })
-    }
+    }*/
 
 }

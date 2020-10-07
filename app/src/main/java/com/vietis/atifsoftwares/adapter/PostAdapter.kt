@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso
 import com.vietis.atifsoftwares.CommentsActivity
 import com.vietis.atifsoftwares.MainActivity
 import com.vietis.atifsoftwares.R
+import com.vietis.atifsoftwares.ShowUsersActivity
 import com.vietis.atifsoftwares.model.Post
 import com.vietis.atifsoftwares.model.User
 import de.hdodenhof.circleimageview.CircleImageView
@@ -85,6 +86,13 @@ class PostAdapter(private val mContext: Context,
                 FirebaseDatabase.getInstance().getReference("Saves")
                     .child(firebaseUser!!.uid).child(post.getPostId()).removeValue()
             }
+        }
+
+        holder.likes.setOnClickListener {
+            val intent = Intent(mContext, ShowUsersActivity::class.java)
+            intent.putExtra("id", post.getPostId())
+            intent.putExtra("title", "Likes")
+            mContext.startActivity(intent)
         }
     }
 
