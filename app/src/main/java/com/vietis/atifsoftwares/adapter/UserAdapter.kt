@@ -2,6 +2,7 @@ package com.vietis.atifsoftwares.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
+import com.vietis.atifsoftwares.MainActivity
 import com.vietis.atifsoftwares.R
 import com.vietis.atifsoftwares.fragments.ProfileFragment
 import com.vietis.atifsoftwares.model.User
@@ -49,12 +51,18 @@ class UserAdapter(private var mContext: Context,
         checkFollowingStatus(user.getUid(), holder.followBtn)
 
         holder.itemView.setOnClickListener {
-            val pref = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit()
-            pref.putString("profileId", user.getUid())
-            pref.apply()
+            if (isFragment) {
+                val pref = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit()
+                pref.putString("profileId", user.getUid())
+                pref.apply()
 
-            (mContext as FragmentActivity).supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ProfileFragment()).commit()
+                (mContext as FragmentActivity).supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, ProfileFragment()).commit()
+            } else {
+                val intent = Intent(mContext, MainActivity::class.java)
+                intent.putExtra("publisherId", user.getUid())
+                mContext.startActivity(intent)
+            }
         }
 
         holder.followBtn.setOnClickListener {
@@ -76,6 +84,7 @@ class UserAdapter(private var mContext: Context,
                             }
                         }
                 }
+                addNotifications(user.getUid())
             } else {
                 firebaseUser?.uid.let { it1 ->
                     FirebaseDatabase.getInstance().getReference("Follow").child(it1.toString())
@@ -96,6 +105,18 @@ class UserAdapter(private var mContext: Context,
                 }
             }
         }
+    }
+
+    private fun addNotifications(userId: String) {
+        val notificationsRef = FirebaseDatabase.getInstance()
+            .getReference("Notifications").child(userId)
+        val hashMap = HashMap<String, Any>()
+        hashMap["userId"] = firebaseUser!!.uid
+        hashMap["text"] = "Started following you"
+        hashMap["postId"] = ""
+        hashMap["isPost"] = false
+
+        notificationsRef.push().setValue(hashMap)
     }
 
     private fun checkFollowingStatus(uid: String, followBtn: Button) {

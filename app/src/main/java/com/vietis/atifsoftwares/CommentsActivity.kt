@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -58,6 +59,17 @@ class CommentsActivity : AppCompatActivity() {
         }
     }
 
+    private fun addNotifications() {
+        val notificationsRef = FirebaseDatabase.getInstance().getReference("Notifications").child(publisherId)
+        val hashMap = HashMap<String, Any>()
+        hashMap["userId"] = FirebaseAuth.getInstance().currentUser!!.uid
+        hashMap["text"] = "Commented: " + add_comment.text.toString()
+        hashMap["postId"] = postId
+        hashMap["isPost"] = true
+
+        notificationsRef.push().setValue(hashMap)
+    }
+
     private fun readComments() {
         val commentsRef = FirebaseDatabase.getInstance().getReference("Comments").child(postId)
         commentsRef.addValueEventListener(object : ValueEventListener {
@@ -86,6 +98,7 @@ class CommentsActivity : AppCompatActivity() {
         commentsMap["publisher"] = publisherId
 
         commentsRef.push().setValue(commentsMap)
+        addNotifications()
         add_comment.text.clear()
     }
 

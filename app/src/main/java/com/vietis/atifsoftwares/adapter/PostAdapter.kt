@@ -24,6 +24,7 @@ import com.vietis.atifsoftwares.ShowUsersActivity
 import com.vietis.atifsoftwares.model.Post
 import com.vietis.atifsoftwares.model.User
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.android.synthetic.main.activity_comments.*
 
 class PostAdapter(private val mContext: Context,
                   private val mPost: List<Post>) :
@@ -58,9 +59,11 @@ class PostAdapter(private val mContext: Context,
             if (holder.likesBtn.tag == "Like") {
                 FirebaseDatabase.getInstance().getReference("Likes")
                     .child(post.getPostId()).child(firebaseUser!!.uid).setValue(true)
+                addNotifications(post.getPublisher(), post.getPostId())
             } else {
                 FirebaseDatabase.getInstance().getReference("Likes")
                     .child(post.getPostId()).child(firebaseUser!!.uid).removeValue()
+                mContext.startActivity(Intent(mContext, MainActivity::class.java))
             }
         }
 
@@ -94,6 +97,18 @@ class PostAdapter(private val mContext: Context,
             intent.putExtra("title", "Likes")
             mContext.startActivity(intent)
         }
+    }
+
+    private fun addNotifications(userId: String, postId: String) {
+        val notificationsRef = FirebaseDatabase.getInstance()
+            .getReference("Notifications").child(userId)
+        val hashMap = HashMap<String, Any>()
+        hashMap["userId"] = firebaseUser!!.uid
+        hashMap["text"] = "Likes your post"
+        hashMap["postId"] = postId
+        hashMap["isPost"] = true
+
+        notificationsRef.push().setValue(hashMap)
     }
 
     private fun checkSavedStatus(postId: String, imageView: ImageView) {

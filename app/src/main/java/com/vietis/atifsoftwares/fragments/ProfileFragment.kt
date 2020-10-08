@@ -120,6 +120,7 @@ class ProfileFragment : Fragment() {
                         FirebaseDatabase.getInstance().getReference("Follow").child(profileId)
                             .child("Followers").child(it1).setValue(true)
                     }
+                    addNotifications()
                 }
 
                 "Following" -> {
@@ -307,6 +308,18 @@ class ProfileFragment : Fragment() {
             override fun onCancelled(error: DatabaseError) {
             }
         })
+    }
+
+    private fun addNotifications() {
+        val notificationsRef = FirebaseDatabase.getInstance()
+            .getReference("Notifications").child(profileId)
+        val hashMap = HashMap<String, Any>()
+        hashMap["userId"] = firebaseUser!!.uid
+        hashMap["text"] = "Started following you"
+        hashMap["postId"] = ""
+        hashMap["isPost"] = false
+
+        notificationsRef.push().setValue(hashMap)
     }
 
     override fun onStop() {
