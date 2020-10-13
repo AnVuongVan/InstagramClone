@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -21,10 +22,11 @@ import com.vietis.atifsoftwares.CommentsActivity
 import com.vietis.atifsoftwares.MainActivity
 import com.vietis.atifsoftwares.R
 import com.vietis.atifsoftwares.ShowUsersActivity
+import com.vietis.atifsoftwares.fragments.PostDetailsFragment
+import com.vietis.atifsoftwares.fragments.ProfileFragment
 import com.vietis.atifsoftwares.model.Post
 import com.vietis.atifsoftwares.model.User
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.android.synthetic.main.activity_comments.*
 
 class PostAdapter(private val mContext: Context,
                   private val mPost: List<Post>) :
@@ -54,6 +56,30 @@ class PostAdapter(private val mContext: Context,
         numberOfLikes(holder.likes, post.getPostId())
         numberOfComments(holder.comments, post.getPostId())
         checkSavedStatus(post.getPostId(), holder.saveBtn)
+
+        holder.postImage.setOnClickListener {
+            val editor = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit()
+            editor.putString("postId", post.getPostId())
+            editor.apply()
+            (mContext as FragmentActivity).supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, PostDetailsFragment()).commit()
+        }
+
+        holder.publisher.setOnClickListener {
+            val editor = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit()
+            editor.putString("profileId", post.getPublisher())
+            editor.apply()
+            (mContext as FragmentActivity).supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ProfileFragment()).commit()
+        }
+
+        holder.profileImage.setOnClickListener {
+            val editor = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit()
+            editor.putString("profileId", post.getPublisher())
+            editor.apply()
+            (mContext as FragmentActivity).supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ProfileFragment()).commit()
+        }
 
         holder.likesBtn.setOnClickListener {
             if (holder.likesBtn.tag == "Like") {
@@ -117,10 +143,10 @@ class PostAdapter(private val mContext: Context,
         savesRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.child(postId).exists()) {
-                    imageView.setImageResource(R.drawable.save_large_icon)
+                    imageView.setImageResource(R.drawable.ic_save_primary)
                     imageView.tag = "Saved"
                 } else {
-                    imageView.setImageResource(R.drawable.save_unfilled_large_icon)
+                    imageView.setImageResource(R.drawable.ic_save_black)
                     imageView.tag = "Save"
                 }
             }
@@ -205,7 +231,7 @@ class PostAdapter(private val mContext: Context,
         val postImage: ImageView = itemView.findViewById(R.id.post_image_home)
         val likesBtn: ImageView = itemView.findViewById(R.id.post_image_like_btn)
         val commentBtn: ImageView = itemView.findViewById(R.id.post_image_comment_btn)
-        val saveBtn: ImageView = itemView.findViewById(R.id.post_save_comment_btn)
+        val saveBtn: ImageView = itemView.findViewById(R.id.post_save_btn)
         val userName: TextView = itemView.findViewById(R.id.user_name)
         val likes: TextView = itemView.findViewById(R.id.likes)
         val publisher: TextView = itemView.findViewById(R.id.publisher)

@@ -47,12 +47,29 @@ class ShowUsersActivity : AppCompatActivity() {
             "Likes" -> getLikes()
             "Following" -> getFollowing()
             "Followers" -> getFollowers()
-            "views" -> getViews()
+            "Views" -> getViews()
         }
     }
 
     private fun getViews() {
+        val ref = FirebaseDatabase.getInstance().getReference("Story")
+            .child(id).child(intent.getStringExtra("storyId").toString())
+            .child("views")
 
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    (idList as ArrayList<String>).clear()
+                    for (dataSnapshot in snapshot.children) {
+                        (idList as ArrayList<String>).add(dataSnapshot.key!!)
+                    }
+                    showUsers()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
     }
 
     private fun getFollowers() {
